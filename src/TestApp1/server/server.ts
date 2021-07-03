@@ -152,20 +152,24 @@ export const getData = (
         limit = 10,
         sort = defaultSorting,
         filter
-}: GetDataParams): PaginationType => {
+}: GetDataParams): Promise<PaginationType> => {
     const decodedFilter = filter ? decodeURIComponent(filter) : null;
     const searchedData = decodedFilter ? data.filter(item => item.name.includes(decodedFilter)) : data;
     // TODO implement sorting
-    const startPosition = page * limit;
-    const endPosition = startPosition + limit;
+    const startPosition: number = Number(page) * Number(limit);
+    const endPosition: number = startPosition + Number(limit);
     const paginatedData = searchedData.slice(startPosition, endPosition);
 
-    return {
-        content: paginatedData,
-        pagination: {
-            limit,
-            page,
-            totalItems: data.length,
-        }
-    };
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve({
+                content: paginatedData,
+                pagination: {
+                    limit: Number(limit),
+                    page: Number(page),
+                    totalItems: searchedData.length,
+                }
+            });
+        }, 1500);
+    })
 }
