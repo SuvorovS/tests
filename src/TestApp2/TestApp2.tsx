@@ -1,33 +1,36 @@
 import React from "react";
 import {
+    concat,
+    HttpLink,
     ApolloClient,
+    ApolloLink,
     InMemoryCache,
     ApolloProvider,
-    useQuery,
-    gql
 } from "@apollo/client";
+import { Header } from './components/Header';
+
+const token = process.env.REACT_APP_GT_TOKEN;
+const httpLink = new HttpLink({ uri: 'https://api.github.com/graphql' });
+
+const authMiddleware = new ApolloLink((operation, forward) => {
+    operation.setContext(({ headers = {} }) => ({
+        headers: {
+            ...headers,
+            authorization: token ? `Bearer ${token}` : null
+        }
+    }));
+
+    return forward(operation);
+})
 
 const client = new ApolloClient({
-    uri: 'https://48p1r2roz4.sse.codesandbox.io',
-    cache: new InMemoryCache()
+    cache: new InMemoryCache(),
+    link: concat(authMiddleware, httpLink),
+    connectToDevTools: true,
 });
 
-export const TestApp2 = () => {
-    const EXCHANGE_RATES = gql`
-      query GetExchangeRates {
-        rates(currency: "USD") {
-          currency
-          rate
-        }
-      }
-`;
-    const { loading, error, data } = useQuery(EXCHANGE_RATES);
-    console.log('loading', loading);
-    console.log('error', error);
-    console.log('data', data);
-    return (
-        <ApolloProvider client={client}>
-            <div>TestApp2</div>
-        </ApolloProvider>
-    )
-}
+export const TestApp2 = () => (
+    <ApolloProvider client={client}>
+        <Header />
+    </ApolloProvider>
+);

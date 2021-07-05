@@ -23,7 +23,7 @@ export const TestApp1 = () => {
             })
     }, [search]);
 
-    // console.log('render TestApp1', content);
+    console.log('render TestApp1', content);
     return (
         <div className="App">
             <div style={{background: "gray"}}>
